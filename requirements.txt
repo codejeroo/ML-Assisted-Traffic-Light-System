@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+pillow
+pillow-heif
+pyserial
+PyQt5
+numpy

@@ -1,0 +1,6 @@
+train: hotwheels_dataset/train
+val: hotwheels_dataset/val
+test: hotwheels_dataset/test
+
+nc: 1
+names: ['hotwheels']
