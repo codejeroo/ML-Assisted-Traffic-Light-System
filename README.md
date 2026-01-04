@@ -6,6 +6,8 @@ This project implements an intelligent traffic light control system for intersec
 
 The system features a real-time GUI built with PyQt5, displaying live video feed, car counts, traffic light statuses, and system logs. It communicates with an ESP32 microcontroller via serial connection to control physical traffic lights.
 
+![GUI Snapshot](image.png)
+
 ## Features
 
 - **Real-time Car Detection**: Uses YOLOv8 model trained on toy car dataset for accurate vehicle detection
@@ -146,24 +148,6 @@ The system sends commands to ESP32 in format:
 - Adjust detection confidence: `conf=0.55` (line 106)
 - Modify image size: `imgsz=416` (line 106)
 - Tune thresholds for direction detection (lines 109-112)
-
-## Project Structure
-
-```
-├── traffic_light_gui.py      # Main GUI application
-├── requirements.txt          # Python dependencies
-├── model/
-│   └── weights/
-│       └── best.pt          # Trained YOLO model
-├── data.yaml                 # Dataset configuration
-├── train_yolo.py            # Model training script
-├── detect_cars.py           # Detection testing script
-├── infer_image.py           # Image inference script
-├── convert_and_split.py     # Data preprocessing
-├── toy_car_detection.ipynb  # Jupyter notebook for development
-├── esp32.ino                # ESP32 firmware
-└── runs/                    # Training results
-```
 
 ## Future Enhancements
 
