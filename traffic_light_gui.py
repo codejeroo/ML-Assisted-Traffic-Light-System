@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                              QLabel, QPushButton, QFrame, QGridLayout)
 from PyQt5.QtGui import QImage, QPixmap, QFont, QColor, QPalette
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
-from ultralytics import YOLO
 import time
 import serial
 
@@ -13,10 +12,11 @@ class VideoThread(QThread):
     frame_signal = pyqtSignal(np.ndarray)
     stats_signal = pyqtSignal(dict)
     log_signal = pyqtSignal(str)
-    q
+    
     def __init__(self):
         super().__init__()
-        self.model = YOLO('model/weights/best.pt')
+        # Model will be loaded in main thread
+        self.model = None
         self.cap = cv2.VideoCapture(0)
         self.running = True
         
@@ -120,6 +120,14 @@ class VideoThread(QThread):
             west_threshold_x = width // 2 - 120
             east_threshold_x = width // 2 + 120
             
+            # Check if model is loaded
+            if self.model is None:
+                # Skip detection if model failed to load
+                annotated_frame = frame
+                self.frame_signal.emit(annotated_frame)
+                time.sleep(0.03)
+                continue
+
             # Detection
             results = self.model(frame, conf=0.55, iou=0.3, imgsz=416)
             
@@ -348,6 +356,14 @@ class TrafficLightGUI(QMainWindow):
         
         # Start video thread
         self.video_thread = VideoThread()
+        # Load model in main thread to avoid DLL issues in QThread
+        try:
+            from ultralytics import YOLO
+            self.video_thread.model = YOLO('model/weights/best.pt')
+            self.video_thread.log_signal.emit("[SYSTEM] ✓ Loaded YOLO model in main thread")
+        except Exception as e:
+            self.video_thread.log_signal.emit(f"[ERROR] Failed to load YOLO model: {e}")
+            self.video_thread.model = None
         self.video_thread.frame_signal.connect(self.update_frame)
         self.video_thread.stats_signal.connect(self.update_stats)
         self.video_thread.log_signal.connect(self.update_log)
